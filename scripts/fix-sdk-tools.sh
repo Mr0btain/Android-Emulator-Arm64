@@ -22,6 +22,12 @@ fix_dir() {
     [ -f "$f" ] && [ ! -L "$f" ] && is_x86_elf "$f" || continue
     name="$(basename "$f")"
     host="${HOST_NAME[$name]-$name}"
+    # Some Debian packages only install under /usr/lib/android-sdk.
+    if [ -n "$host" ] && ! command -v "$host" >/dev/null; then
+      for alt in /usr/lib/android-sdk/{platform-tools,build-tools/debian}/"$host"; do
+        [ -x "$alt" ] && host="$alt" && break
+      done
+    fi
     if [ -z "$host" ] || ! host="$(command -v "$host")"; then
       echo "  skip  $name (no native replacement)"
       continue
