@@ -1,4 +1,4 @@
-From 263c030b65fd08150ed14d1d4e55ef81df10a83e Mon Sep 17 00:00:00 2001
+From af74eb942891dd78721007a0261e8a9858c003dc Mon Sep 17 00:00:00 2001
 From: nick <wnbarbe1@gmail.com>
 Date: Wed, 28 Oct 2026 21:07:20 -0400
 Subject: [PATCH 4/4] Fix build with GCC 15
@@ -8,10 +8,12 @@ Subject: [PATCH 4/4] Fix build with GCC 15
 - ext4_utils: call allocate_inode() without the stray argument; C23 (the
   GCC 15 default) treats the empty parameter list as void.
 ---
- android-qemu2-glue/emulation/WifiService.h          | 2 ++
- android/third_party/crashpad/util/file/filesystem.h | 1 +
- android/third_party/ext4_utils/src/contents.c       | 6 +++---
- 3 files changed, 6 insertions(+), 3 deletions(-)
+ android-qemu2-glue/emulation/WifiService.h           | 2 ++
+ android/android-emu/android/snapshot/MemoryWatch.h   | 1 +
+ android/android-emu/android/snapshot/Snapshotter.cpp | 1 +
+ android/third_party/crashpad/util/file/filesystem.h  | 1 +
+ android/third_party/ext4_utils/src/contents.c        | 6 +++---
+ 5 files changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/android-qemu2-glue/emulation/WifiService.h b/android-qemu2-glue/emulation/WifiService.h
 index eacee93a..f1f80321 100644
@@ -26,6 +28,30 @@ index eacee93a..f1f80321 100644
  #include "aemu/base/Compiler.h"
  #include "aemu/base/IOVector.h"
  #include "android-qemu2-glue/emulation/export.h"
+diff --git a/android/android-emu/android/snapshot/MemoryWatch.h b/android/android-emu/android/snapshot/MemoryWatch.h
+index 3ecf53e0..a0054020 100644
+--- a/android/android-emu/android/snapshot/MemoryWatch.h
++++ b/android/android-emu/android/snapshot/MemoryWatch.h
+@@ -11,6 +11,7 @@
+ 
+ #pragma once
+ 
++#include <cstdint>
+ #include <functional>
+ #include <memory>
+ 
+diff --git a/android/android-emu/android/snapshot/Snapshotter.cpp b/android/android-emu/android/snapshot/Snapshotter.cpp
+index 2b607f59..f1de978b 100644
+--- a/android/android-emu/android/snapshot/Snapshotter.cpp
++++ b/android/android-emu/android/snapshot/Snapshotter.cpp
+@@ -53,6 +53,7 @@
+ #include <cassert>
+ #include <fstream>
+ #include <string_view>
++#include <thread>
+ #include <utility>
+ 
+ #ifdef __x86_64__
 diff --git a/android/third_party/crashpad/util/file/filesystem.h b/android/third_party/crashpad/util/file/filesystem.h
 index f04ee10d..20e8afb6 100644
 --- a/android/third_party/crashpad/util/file/filesystem.h
