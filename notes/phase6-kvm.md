@@ -87,3 +87,7 @@ stubble/systemd-stub PE (`.dtbauto` x32, `.hwids`, `.linux`): it installs the
 dtb matching the machine's CHID over whatever the bootloader passed.
 Fix: el2-grubcfg extracts `.linux` (`objcopy -O binary --only-section=.linux`)
 to `/boot/el2/vmlinuz-<ver>` and the EL2 entry boots that.
+
+**Result 2026-10-29: EL2 boot works.** `CPU: All CPU(s) started at EL2`,
+`kvm [1]: VHE mode initialized successfully`, `/dev/kvm` present (GICv3 only:
+"no GICV resource entry, disabling GICv2 emulation" is expected).
