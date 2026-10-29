@@ -38,3 +38,13 @@
 - No netsim for this platform → Bluetooth/Wi-Fi emulation needs a remote netsim.
 - RUST disabled.
 - No git version tag (shallow clone).
+
+## Build fixes (Phase 4)
+
+All compile failures were GCC 15 strictness, none arm64-specific:
+- missing `<cstdint>` / `<thread>` (libstdc++ 15 no longer includes them transitively):
+  crashpad, netsim, gfxstream (2 headers), WifiService.h, MemoryWatch.h, Snapshotter.cpp
+- ext4_utils `allocate_inode(info)`: C23 makes `f()` mean `f(void)`.
+
+Packaging: `cmake.py` only runs the last `--task`; the install step is
+`cmake --build out/build --target install/strip` → `out/build/distribution/emulator`.

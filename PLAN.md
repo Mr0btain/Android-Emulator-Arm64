@@ -8,8 +8,8 @@
 | 1 SDK tools | adb, fastboot, aapt, aapt2, mke2fs linked natively; Gradle aapt2 override set. Remaining tools need the extra packages below |
 | 2 Fetch sources | done: 54 projects, ~17 GB, `scripts/fetch-sources.sh` |
 | 3 Toolchain port | done: configures (see `notes/toolchain.md`, 2 patches) |
-| 4 Build | in progress |
-| 5 Install + run | — |
+| 4 Build | done: native `emulator` 35.6.3 + `qemu-system-aarch64` (8 patches total, see `patches/`) |
+| 5 Install + run | emulator installed in SDK; cmdline-tools installed; waiting on system image license |
 | 6 KVM (optional) | — |
 
 Goal: build the Android Emulator (`external/qemu`, branch `emu-master-dev`)
@@ -165,6 +165,14 @@ and start.
 4. Deploy an app from IntelliJ.
 
 **Done when:** an AVD boots and an app installs and runs from the IDE.
+
+### Phase 5 notes
+
+- cmdline-tools 23+ (`latest`) replaced the Java `sdkmanager` with a native
+  **x86-64** `android` CLI that won't run here. `avdmanager` is still Java.
+  Use `cmdline-tools/22.0/bin/sdkmanager` (the last Java version) to install packages.
+- sdkmanager recognizes our build as the `emulator` package via the
+  `package.xml` that `scripts/install-sdk.sh` writes.
 
 ## Phase 6 — (Optional) KVM via EL2
 
