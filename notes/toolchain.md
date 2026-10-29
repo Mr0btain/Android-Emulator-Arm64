@@ -48,3 +48,21 @@ All compile failures were GCC 15 strictness, none arm64-specific:
 
 Packaging: `cmake.py` only runs the last `--task`; the install step is
 `cmake --build out/build --target install/strip` → `out/build/distribution/emulator`.
+
+## Runtime bugs found booting under TCG (Phase 5)
+
+1. `gic-version=host` is the default on aarch64 Linux → "requires KVM".
+   Patched `hw/arm/virt.c` to fall back to GICv3 under TCG.
+2. `-cpu host` is hard-coded for arm64 guests on aarch64 Linux → "can only be used
+   with KVM". Patched `android-qemu2-glue/main.cpp` to use `max` without usable KVM.
+3. SIGSEGV in `qemu_in_vcpu_thread()` while realizing virtio-snd: `current_cpu`
+   (TLS) held garbage. A gdb hardware watchpoint on the TLS slot caught
+   libuuid's `get_random_bytes()` writing it. Cause: prebuilt
+   `common/e2fsprogs/linux-aarch64/lib/libuuid.a` (and the libunwind
+   `linux-aarch64` archives) use local-exec TLS relocations, which alias the
+   executable's TLS when linked into a `.so`. Fix: system `libuuid`/`libunwind`.
+
+Debugging recipe: gdb with `set follow-fork-mode parent` (the launcher execs
+qemu in the same PID; crashpad_handler is a forked child). Copy the unstripped
+`out/build/qemu/linux-aarch64/qemu-system-aarch64-headless` over the SDK copy
+for symbols.

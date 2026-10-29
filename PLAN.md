@@ -210,7 +210,15 @@ re-run `scripts/fix-sdk-tools.sh` after installing):
 sudo apt install zipalign aidl dexdump split-select etc1tool hprof-conv sqlite3
 ```
 
-More may turn up during Phase 4. Add them here when they do.
+Found during Phase 4/5:
+
+```
+sudo apt install uuid-dev libunwind-dev
+```
+(system replacements for prebuilt static libs with broken local-exec TLS,
+see notes/toolchain.md)
+
+More may turn up. Add them here when they do.
 
 ## Risks / open questions
 

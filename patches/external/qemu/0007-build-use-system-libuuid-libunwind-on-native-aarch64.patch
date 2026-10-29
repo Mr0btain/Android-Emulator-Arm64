@@ -1,0 +1,68 @@
+From 37351639727789adac5e111001874f3a843282f8 Mon Sep 17 00:00:00 2001
+From: nick <wnbarbe1@gmail.com>
+Date: Thu, 29 Oct 2026 00:02:33 -0400
+Subject: [PATCH 7/7] build: use system libuuid/libunwind on native aarch64
+ hosts
+
+The linux-aarch64 prebuilt libuuid.a and libunwind*.a are compiled with
+local-exec TLS (R_AARCH64_TLSLE_*). Linked into shared libraries
+(libandroid-emu-metrics.so etc.) their thread-locals alias the
+executable's static TLS block: libuuid's random seed overwrote QEMU's
+current_cpu, crashing in qemu_in_vcpu_thread() during device realize.
+
+Also stops linking libunwind-x86_64.a into aarch64 builds.
+---
+ .../cmake/config/emu-libunwind-config.cmake     | 17 ++++++++++++++++-
+ .../build/cmake/config/emu-uuid-config.cmake    | 11 +++++++++++
+ 2 files changed, 27 insertions(+), 1 deletion(-)
+
+diff --git a/android/build/cmake/config/emu-libunwind-config.cmake b/android/build/cmake/config/emu-libunwind-config.cmake
+index 3a86a531..9709d5e0 100644
+--- a/android/build/cmake/config/emu-libunwind-config.cmake
++++ b/android/build/cmake/config/emu-libunwind-config.cmake
+@@ -13,7 +13,22 @@ get_filename_component(
+   PREBUILT_ROOT
+   "${ANDROID_QEMU2_TOP_DIR}/../../prebuilts/android-emulator-build/common/libunwind/${ANDROID_TARGET_TAG}"
+   ABSOLUTE)
+-if(LINUX)
++if(LINUX_AARCH64 AND NOT CROSSCOMPILE)
++  # The linux-aarch64 prebuilt archives use local-exec TLS, which breaks when
++  # linked into shared libraries (see emu-uuid-config.cmake). Use the system
++  # libunwind (libunwind-dev) on native aarch64 hosts.
++  find_path(LIBUNWIND_INCLUDE_DIR libunwind.h REQUIRED)
++  find_library(LIBUNWIND_LIB unwind REQUIRED)
++  set(LIBUNWIND_INCLUDE_DIRS ${LIBUNWIND_INCLUDE_DIR})
++  set(LIBUNWIND_LIBRARIES ${LIBUNWIND_LIB})
++  if(NOT TARGET LIBUNWIND::LIBUNWIND)
++    add_library(LIBUNWIND::LIBUNWIND INTERFACE IMPORTED GLOBAL)
++    set_target_properties(
++      LIBUNWIND::LIBUNWIND
++      PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${LIBUNWIND_INCLUDE_DIRS}"
++                 INTERFACE_LINK_LIBRARIES "${LIBUNWIND_LIBRARIES}")
++  endif()
++elseif(LINUX)
+   set(LIBUNWIND_INCLUDE_DIR "${PREBUILT_ROOT}/include")
+   set(LIBUNWIND_INCLUDE_DIRS ${LIBUNWIND_INCLUDE_DIR})
+   set(LIBUNWIND_LIBRARIES
+diff --git a/android/build/cmake/config/emu-uuid-config.cmake b/android/build/cmake/config/emu-uuid-config.cmake
+index 1af6f988..a6bfe8ca 100644
+--- a/android/build/cmake/config/emu-uuid-config.cmake
++++ b/android/build/cmake/config/emu-uuid-config.cmake
+@@ -19,6 +19,17 @@ if(DARWIN_X86_64 OR DARWIN_AARCH64)
+   # set them explicitly.
+   android_license(TARGET UUID::UUID LIBNAME uuid SPDX None LICENSE None
+                   LOCAL None)
++elseif(LINUX_AARCH64 AND NOT CROSSCOMPILE)
++  # The linux-aarch64 prebuilt libuuid.a uses local-exec TLS, which is only
++  # valid in executables. Linked into a shared library its thread-local seed
++  # aliases the executable's TLS (it clobbered QEMU's current_cpu), so use
++  # the system shared library on native aarch64 hosts.
++  find_path(UUID_INCLUDE_DIR uuid/uuid.h REQUIRED)
++  find_library(UUID_LIBRARIES uuid REQUIRED)
++  set(UUID_INCLUDE_DIRS "${UUID_INCLUDE_DIR}")
++  android_license(TARGET UUID::UUID LIBNAME uuid SPDX BSD-3-Clause
++                  LICENSE "https://spdx.org/licenses/BSD-3-Clause.html"
++                  LOCAL "${ANDROID_QEMU2_TOP_DIR}/LICENSES/LICENSE.UUID")
+ elseif(LINUX)
+   set(UUID_INCLUDE_DIR "${PREBUILT_ROOT}/include")
+   set(UUID_INCLUDE_DIRS "${UUID_INCLUDE_DIR}")

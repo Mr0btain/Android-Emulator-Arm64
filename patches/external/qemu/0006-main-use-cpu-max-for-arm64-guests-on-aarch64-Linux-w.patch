@@ -1,7 +1,7 @@
 From cabcf99b3ddc0a8093c20c29efcc3f9e1795e4d3 Mon Sep 17 00:00:00 2001
 From: nick <wnbarbe1@gmail.com>
 Date: Wed, 28 Oct 2026 22:30:13 -0400
-Subject: [PATCH 6/6] main: use cpu 'max' for arm64 guests on aarch64 Linux
+Subject: [PATCH 6/7] main: use cpu 'max' for arm64 guests on aarch64 Linux
  without KVM
 
 kTarget.qemuCpu is 'host' on aarch64 Linux, which QEMU rejects under
