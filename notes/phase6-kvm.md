@@ -67,3 +67,14 @@
    so the normal entry is unaffected.
 5. Boot the EL2 entry, check `dmesg | grep -i kvm`, `/dev/kvm`, `kvm` group.
 6. `emulator -avd arm64-35 -accel on` (patch #6 picks `-cpu host` automatically).
+
+## Boot path (scripts/el2-install.sh)
+firmware entry "Ubuntu (EL2 KVM)" (last in BootOrder; F12 menu) ->
+`\EFI\slbounce\shellaa64.efi` -> `startup.nsh` (`load slbounce.efi`, run
+`grubel2.efi`) -> `/boot/grub/el2.cfg` (newest kernel, `-el2.dtb`, no quiet/splash)
+-> slbounce switches at ExitBootServices because the dtb has zap-shader disabled.
+- slbounce reads `tcblaunch.exe` from the **root** of its volume: `\tcblaunch.exe` on the ESP.
+- `grubel2.efi`: `grub-mkimage -O arm64-efi` with `scripts/el2/grubel2-embed.cfg`
+  (Ubuntu's GRUB menu is hidden/timeout 0 and its signed image can't load EFI drivers).
+- `/etc/kernel/postinst.d/zz-el2-grubcfg` regenerates el2.cfg on kernel updates.
+- `sudo scripts/el2-install.sh --remove` undoes it all.
