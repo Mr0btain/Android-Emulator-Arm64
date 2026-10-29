@@ -4,7 +4,12 @@
 #   out/distribution  installable emulator/ directory + zip
 #
 # usage: scripts/build.sh [extra cmake.py args...]
-#   e.g. scripts/build.sh --task configure
+#   no args            configure + compile (install/strip) + distribution
+#   --task configure   run only that task. cmake.py keeps only the LAST
+#                      --task given, so don't chain them.
+#
+# For iterating on compile errors it's faster to run ninja directly:
+#   ninja -C out/build -k 0 -j6
 set -euo pipefail
 
 TOP="$(cd "$(dirname "$0")/.." && pwd)"
