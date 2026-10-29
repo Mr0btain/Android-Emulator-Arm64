@@ -1,7 +1,7 @@
 From b3bfaad3db1460ff0b000cad616654f8176836be Mon Sep 17 00:00:00 2001
 From: nick <wnbarbe1@gmail.com>
 Date: Wed, 28 Oct 2026 22:27:36 -0400
-Subject: [PATCH 5/5] hw/arm/virt: fall back to GICv3 under TCG on aarch64
+Subject: [PATCH 5/6] hw/arm/virt: fall back to GICv3 under TCG on aarch64
  Linux hosts
 
 gic-version defaults to "host" on aarch64 Linux, which aborted with

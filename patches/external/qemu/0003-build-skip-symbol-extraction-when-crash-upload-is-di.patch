@@ -1,7 +1,7 @@
 From dbdef06e0c8123a227d72c462f5c781a0faeb99d Mon Sep 17 00:00:00 2001
 From: nick <wnbarbe1@gmail.com>
 Date: Wed, 28 Oct 2026 20:33:43 -0400
-Subject: [PATCH 3/5] build: skip symbol extraction when crash upload is
+Subject: [PATCH 3/6] build: skip symbol extraction when crash upload is
  disabled
 
 Native aarch64 builds are no longer treated as cross-compiles, so they

@@ -1,0 +1,37 @@
+From cabcf99b3ddc0a8093c20c29efcc3f9e1795e4d3 Mon Sep 17 00:00:00 2001
+From: nick <wnbarbe1@gmail.com>
+Date: Wed, 28 Oct 2026 22:30:13 -0400
+Subject: [PATCH 6/6] main: use cpu 'max' for arm64 guests on aarch64 Linux
+ without KVM
+
+kTarget.qemuCpu is 'host' on aarch64 Linux, which QEMU rejects under
+TCG ('The host CPU type can only be used with KVM'). Use it only when
+/dev/kvm is usable and -accel off was not given.
+---
+ android-qemu2-glue/main.cpp | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/android-qemu2-glue/main.cpp b/android-qemu2-glue/main.cpp
+index ce784d98..a73f858d 100644
+--- a/android-qemu2-glue/main.cpp
++++ b/android-qemu2-glue/main.cpp
+@@ -2607,6 +2607,19 @@ extern "C" int main(int argc, char** argv) {
+     } else {
+         args.add(kTarget.qemuCpu);
+     }
++#elif defined(CONFIG_LINUX) && defined(TARGET_ARM64) && defined(__aarch64__)
++    // "host" only works with KVM. Without it (no /dev/kvm, or -accel off)
++    // fall back to TCG's most capable model.
++    {
++        const bool accel_off = opts->accel && !strcmp(opts->accel, "off");
++        const bool kvm_usable = access("/dev/kvm", R_OK | W_OK) == 0;
++        if (!accel_off && kvm_usable) {
++            args.add(kTarget.qemuCpu);
++        } else {
++            dinfo("KVM not available, using cpu 'max' under TCG");
++            args.add("max");
++        }
++    }
+ #else
+     args.add(kTarget.qemuCpu);
+ #endif
