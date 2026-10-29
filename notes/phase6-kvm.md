@@ -48,7 +48,7 @@
   | 22621.4317 | BEB81838ed000 | 799c8cee...3cf7ff81e | works on sc8280xp (**X13s**) |
   | 26100.4351 | 66A7C7F3100000 | 463520e1...1333e548 | works on X1E |
 
-  Plan: try 26100.1742 first (user's choice), 22621.4317 as fallback.
+  Plan: try 22621.4317 first (reported working on X13s), 26100.1742 as fallback.
 - Same script's notes: Fedora GRUB can't chainload EFI drivers so they put
   systemd-boot first; kernel args `id_aa64mmfr0.ecv=1` (X1E firmware resets on
   CNTPOFF_EL2) and `cpuidle.off=1` (input lag at EL2); upstream -el2 DTB's
