@@ -28,7 +28,7 @@ delete_entries() { for n in $(entries "$1"); do efibootmgr -q -b "$n" -B; done; 
 if [ "${1:-}" = "--remove" ]; then
   delete_entries "$LABEL"
   delete_entries "$OLD_LABEL"
-  rm -rf "$DST" "$ESP/tcblaunch.exe" "$HOOK" /boot/grub/el2.cfg
+  rm -rf "$DST" "$ESP/tcblaunch.exe" "$HOOK" /boot/grub/el2.cfg /boot/el2
   echo "removed EL2 boot path"
   exit 0
 fi

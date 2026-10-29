@@ -78,3 +78,12 @@ firmware entry "Ubuntu (EL2 KVM)" (last in BootOrder; F12 menu) ->
   (Ubuntu's GRUB menu is hidden/timeout 0 and its signed image can't load EFI drivers).
 - `/etc/kernel/postinst.d/zz-el2-grubcfg` regenerates el2.cfg on kernel updates.
 - `sudo scripts/el2-install.sh --remove` undoes it all.
+
+## Gotcha: Ubuntu's kernel replaces the dtb (2026-10-29)
+First EL2 boot came up at EL1 ("HYP mode not available") with the *normal*
+dtb (iommu@14f80000 reserved). GRUB diagnostics: firmware has no DTB table
+and GRUB loaded the -el2.dtb fine. Cause: `/boot/vmlinuz-*` is a
+stubble/systemd-stub PE (`.dtbauto` x32, `.hwids`, `.linux`): it installs the
+dtb matching the machine's CHID over whatever the bootloader passed.
+Fix: el2-grubcfg extracts `.linux` (`objcopy -O binary --only-section=.linux`)
+to `/boot/el2/vmlinuz-<ver>` and the EL2 entry boots that.
