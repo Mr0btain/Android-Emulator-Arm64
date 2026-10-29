@@ -33,6 +33,13 @@ if [ "${1:-}" = "--remove" ]; then
   exit 0
 fi
 
+# Standalone GRUB that only reads /boot/grub/el2.cfg (Ubuntu's menu is hidden).
+mkdir -p "$EL2/grub"
+grub-mkimage -O arm64-efi -o "$EL2/grub/grubel2.efi" -p /boot/grub \
+  -c "$TOP/scripts/el2/grubel2-embed.cfg" \
+  normal configfile search search_fs_file search_fs_uuid part_gpt fat ext2 linux fdt \
+  gzio echo test efi_gop all_video gfxterm font reboot halt efifwsetup lsefisystab sleep
+
 for f in "$EL2/slbounce/out/slbounce.efi" "$EL2/grub/grubel2.efi" "$EL2/tcblaunch.exe" \
          /usr/share/efi-shell-aa64/shellaa64.efi; do
   [ -e "$f" ] || { echo "missing $f" >&2; exit 1; }

@@ -32,6 +32,18 @@ menuentry 'Ubuntu $ver (EL2 / KVM)' {
 	initrd	/boot/initrd.img-$ver
 	devicetree	/lib/firmware/$ver/$DTB
 }
+menuentry 'EL2 diagnostics (does not boot)' {
+	echo '== EFI config tables before GRUB (look for DEVICE TREE / b1b621d5):'
+	lsefisystab
+	echo '== firmware FDT model (error = no firmware DTB):'
+	fdtdump --prop model
+	set debug=fdt
+	echo '== loading the EL2 dtb:'
+	devicetree	/lib/firmware/$ver/$DTB
+	set debug=
+	echo '== take a photo, then press any key for the menu'
+	sleep --interruptible 600
+}
 menuentry 'UEFI firmware settings' {
 	fwsetup
 }
