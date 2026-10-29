@@ -1,0 +1,57 @@
+# <path> <aosp-project> <revision> [sparse-dirs,comma,separated]
+# Generated from platform/manifest emu-master-dev, minus host toolchain
+# prebuilts (x86 only), windows/darwin groups, and test-only projects.
+build/make platform/build emu-master-dev
+build/bazel platform/build/bazel emu-master-dev
+tools/buildSrc platform/tools/buildSrc emu-master-dev
+external/libslirp trusty/external/qemu-libslirp emu-master-dev
+device/generic/goldfish-opengl device/generic/goldfish-opengl main
+device/generic/vulkan-cereal device/generic/vulkan-cereal main
+external/abseil-cpp platform/external/abseil-cpp emu-master-dev
+external/adt-infra platform/external/adt-infra emu-master-dev
+external/angle platform/external/angle emu-master-dev
+external/astc-codec platform/external/astc-codec main
+external/boringssl platform/external/boringssl main
+external/cares platform/external/c-ares emu-master-dev
+external/curl platform/external/curl emu-master-dev
+external/dtc platform/external/dtc main
+external/deqp platform/external/deqp main
+external/fmtlib platform/external/fmtlib main
+external/gfxstream-protocols platform/external/gfxstream-protocols main
+external/googletest platform/external/googletest main
+external/google-benchmark platform/external/google-benchmark main
+external/grpc platform/external/grpc-grpc emu-master-dev
+external/libusb platform/external/libusb emu-master-dev
+external/libpng platform/external/libpng main
+external/libxml2 platform/external/libxml2 emu-master-dev
+external/lz4 platform/external/lz4 main
+external/protobuf platform/external/protobuf emu-master-dev
+external/perfetto platform/external/perfetto 37518c39e3db120322359090db3d54f6ac100078
+external/qemu platform/external/qemu emu-master-dev
+external/regex-re2 platform/external/regex-re2 main
+external/glib platform/external/bluetooth/glib emu-master-dev
+external/tinyobjloader platform/external/tinyobjloader main
+external/virglrenderer platform/external/virglrenderer crosvm-master
+external/nasm platform/external/nasm emu-master-dev
+external/wpa_supplicant_8 platform/external/wpa_supplicant_8 emu-master-dev
+external/zlib platform/external/zlib emu-master-dev
+frameworks/native platform/frameworks/native lollipop-release
+hardware/google/aemu platform/hardware/google/aemu main
+hardware/google/gfxstream platform/hardware/google/gfxstream main
+prebuilts/android-emulator platform/prebuilts/android-emulator emu-master-dev
+prebuilts/android-emulator-build/archive platform/prebuilts/android-emulator-build/archive emu-master-dev
+prebuilts/android-emulator-build/common platform/prebuilts/android-emulator-build/common emu-master-dev
+prebuilts/android-emulator-build/mesa platform/prebuilts/android-emulator-build/mesa emu-master-dev
+prebuilts/android-emulator-build/mesa-deps platform/prebuilts/android-emulator-build/mesa-deps emu-master-dev
+prebuilts/android-emulator-build/qemu-android-deps platform/prebuilts/android-emulator-build/qemu-android-deps emu-master-dev linux-aarch64
+prebuilts/android-emulator-build/qt platform/prebuilts/android-emulator-build/qt emu-master-dev linux-aarch64
+device/google/cuttlefish device/google/cuttlefish main
+tools/netsim platform/tools/netsim main
+external/google-breakpad platform/external/google-breakpad emu-master-dev
+external/crashpad platform/external/crashpad emu-dev
+external/tink platform/external/tink emu-master-dev
+external/rapidjson platform/external/rapidjson main
+packages/modules/Bluetooth platform/packages/modules/Bluetooth main
+external/webrtc platform/external/webrtc emu-master-dev
+external/flatbuffers platform/external/flatbuffers main
+external/mesa3d platform/external/mesa3d main

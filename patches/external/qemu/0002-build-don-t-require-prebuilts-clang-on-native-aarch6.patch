@@ -1,0 +1,27 @@
+From 170e6ff318d05cac010f15ba90ea44526fcc1bbd Mon Sep 17 00:00:00 2001
+From: nick <wnbarbe1@gmail.com>
+Date: Wed, 28 Oct 2026 20:32:43 -0400
+Subject: [PATCH 2/3] build: don't require prebuilts/clang on native aarch64
+ hosts
+
+The linux-aarch64 toolchain uses the system GNU toolchain, and AOSP's
+prebuilt clang is x86-only.
+---
+ android/scripts/unix/utils/aosp_dir.shi | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/android/scripts/unix/utils/aosp_dir.shi b/android/scripts/unix/utils/aosp_dir.shi
+index 70719080..29512510 100644
+--- a/android/scripts/unix/utils/aosp_dir.shi
++++ b/android/scripts/unix/utils/aosp_dir.shi
+@@ -72,7 +72,9 @@ aosp_dir_parse_option () {
+ 
+     AOSP_DIR=$(cd "$AOSP_DIR" && pwd -P 2>/dev/null)
+     AOSP_PREBUILTS_CLANG_DIR=$AOSP_DIR/prebuilts/clang
+-    if [ ! -d "$AOSP_PREBUILTS_CLANG_DIR" ]; then
++    # Native linux-aarch64 hosts build with the system toolchain, so the
++    # (x86-only) prebuilt clang is not needed there.
++    if [ ! -d "$AOSP_PREBUILTS_CLANG_DIR" -a "$(uname -sm)" != "Linux aarch64" ]; then
+         panic "Not a valid AOSP tree: missing directory: $AOSP_PREBUILTS_CLANG_DIR"
+     fi
+ }
