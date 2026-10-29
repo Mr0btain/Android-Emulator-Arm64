@@ -1,0 +1,21 @@
+From 95ab2a0e7b2ac47833cef1e08c623484b0110d64 Mon Sep 17 00:00:00 2001
+From: nick <wnbarbe1@gmail.com>
+Date: Wed, 28 Oct 2026 21:07:20 -0400
+Subject: [PATCH] AstcCpuDecompressor: include <cstdint> (GCC 15)
+
+---
+ host/compressedTextureFormats/AstcCpuDecompressor.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/host/compressedTextureFormats/AstcCpuDecompressor.h b/host/compressedTextureFormats/AstcCpuDecompressor.h
+index 4823ee2..6d7843c 100644
+--- a/host/compressedTextureFormats/AstcCpuDecompressor.h
++++ b/host/compressedTextureFormats/AstcCpuDecompressor.h
+@@ -13,6 +13,7 @@
+ // limitations under the License.
+ #pragma once
+ 
++#include <cstdint>
+ #include <memory>
+ #include <string>
+ 

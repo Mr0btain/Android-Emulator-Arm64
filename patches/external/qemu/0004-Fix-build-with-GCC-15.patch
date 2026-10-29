@@ -1,0 +1,71 @@
+From 263c030b65fd08150ed14d1d4e55ef81df10a83e Mon Sep 17 00:00:00 2001
+From: nick <wnbarbe1@gmail.com>
+Date: Wed, 28 Oct 2026 21:07:20 -0400
+Subject: [PATCH 4/4] Fix build with GCC 15
+
+- Include <cstdint>/<stdint.h> where fixed-width ints are used; libstdc++
+  15 no longer pulls them in transitively.
+- ext4_utils: call allocate_inode() without the stray argument; C23 (the
+  GCC 15 default) treats the empty parameter list as void.
+---
+ android-qemu2-glue/emulation/WifiService.h          | 2 ++
+ android/third_party/crashpad/util/file/filesystem.h | 1 +
+ android/third_party/ext4_utils/src/contents.c       | 6 +++---
+ 3 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/android-qemu2-glue/emulation/WifiService.h b/android-qemu2-glue/emulation/WifiService.h
+index eacee93a..f1f80321 100644
+--- a/android-qemu2-glue/emulation/WifiService.h
++++ b/android-qemu2-glue/emulation/WifiService.h
+@@ -13,6 +13,8 @@
+ // limitations under the License.
+ #pragma once
+ 
++#include <cstdint>
++
+ #include "aemu/base/Compiler.h"
+ #include "aemu/base/IOVector.h"
+ #include "android-qemu2-glue/emulation/export.h"
+diff --git a/android/third_party/crashpad/util/file/filesystem.h b/android/third_party/crashpad/util/file/filesystem.h
+index f04ee10d..20e8afb6 100644
+--- a/android/third_party/crashpad/util/file/filesystem.h
++++ b/android/third_party/crashpad/util/file/filesystem.h
+@@ -15,6 +15,7 @@
+ #ifndef CRASHPAD_UTIL_FILE_FILESYSTEM_H_
+ #define CRASHPAD_UTIL_FILE_FILESYSTEM_H_
+ 
++#include <stdint.h>
+ #include <time.h>
+ 
+ #include "base/files/file_path.h"
+diff --git a/android/third_party/ext4_utils/src/contents.c b/android/third_party/ext4_utils/src/contents.c
+index 13db1d3c..c582797e 100644
+--- a/android/third_party/ext4_utils/src/contents.c
++++ b/android/third_party/ext4_utils/src/contents.c
+@@ -106,7 +106,7 @@ u32 make_directory(u32 dir_inode_num, u32 entries, struct dentry *dentries,
+ 	len = blocks * info.block_size;
+ 
+ 	if (dir_inode_num) {
+-		inode_num = allocate_inode(info);
++		inode_num = allocate_inode();
+ 	} else {
+ 		dir_inode_num = EXT4_ROOT_INO;
+ 		inode_num = EXT4_ROOT_INO;
+@@ -174,7 +174,7 @@ u32 make_file(const char *filename, u64 len)
+ 	struct ext4_inode *inode;
+ 	u32 inode_num;
+ 
+-	inode_num = allocate_inode(info);
++	inode_num = allocate_inode();
+ 	if (inode_num == EXT4_ALLOCATE_FAILED) {
+ 		error("failed to allocate inode\n");
+ 		return EXT4_ALLOCATE_FAILED;
+@@ -203,7 +203,7 @@ u32 make_link(const char *link)
+ 	u32 inode_num;
+ 	u32 len = strlen(link);
+ 
+-	inode_num = allocate_inode(info);
++	inode_num = allocate_inode();
+ 	if (inode_num == EXT4_ALLOCATE_FAILED) {
+ 		error("failed to allocate inode\n");
+ 		return EXT4_ALLOCATE_FAILED;
