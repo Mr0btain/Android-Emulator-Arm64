@@ -171,6 +171,15 @@ and start.
 - cmdline-tools 23+ (`latest`) replaced the Java `sdkmanager` with a native
   **x86-64** `android` CLI that won't run here. `avdmanager` is still Java.
   Use `cmdline-tools/22.0/bin/sdkmanager` (the last Java version) to install packages.
+- **Black, unresponsive window** after closing and relaunching: Quick Boot
+  restored a broken `default_boot` snapshot (log: "Error -1 from the snapshot
+  callback"). Also `hw.gpu.mode=auto` meant IDE launches skipped SwiftShader.
+  Fix in `~/.android/avd/arm64-35.avd/config.ini`: `hw.gpu.enabled=yes`,
+  `hw.gpu.mode=swiftshader_indirect`, `fastboot.forceColdBoot=yes`,
+  `fastboot.forceFastBoot=no` (old snapshot moved to `out/avd-snapshot-bak/`).
+  In IntelliJ's Device Manager keep Graphics = Software and Boot = Cold.
+  Cold boot under KVM: ~45 s; a "System UI isn't responding" dialog may show
+  once right after boot (tap Wait).
 - sdkmanager recognizes our build as the `emulator` package via the
   `package.xml` that `scripts/install-sdk.sh` writes.
 
