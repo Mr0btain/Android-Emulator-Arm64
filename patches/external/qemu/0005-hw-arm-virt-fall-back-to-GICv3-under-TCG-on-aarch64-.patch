@@ -1,0 +1,30 @@
+From b3bfaad3db1460ff0b000cad616654f8176836be Mon Sep 17 00:00:00 2001
+From: nick <wnbarbe1@gmail.com>
+Date: Wed, 28 Oct 2026 22:27:36 -0400
+Subject: [PATCH 5/5] hw/arm/virt: fall back to GICv3 under TCG on aarch64
+ Linux hosts
+
+gic-version defaults to "host" on aarch64 Linux, which aborted with
+'gic-version=host requires KVM' whenever KVM is unavailable (e.g. Linux
+at EL1 on Snapdragon laptops). Use 3, as "max" does for TCG.
+---
+ hw/arm/virt.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/hw/arm/virt.c b/hw/arm/virt.c
+index 274896c9..ea6bea64 100644
+--- a/hw/arm/virt.c
++++ b/hw/arm/virt.c
+@@ -1325,8 +1325,10 @@ static void machvirt_init(MachineState *machine)
+         /* "host" or "max" */
+         if (!kvm_enabled()) {
+             if (vms->gic_version == 0) {
+-                error_report("gic-version=host requires KVM");
+-                exit(1);
++                /* "host" is the default on aarch64 Linux hosts, which
++                 * still need to run under TCG when KVM is unavailable. */
++                warn_report("gic-version=host requires KVM, using 3 for TCG");
++                vms->gic_version = 3;
+             } else {
+                 /* "max": currently means 3 for TCG */
+                 vms->gic_version = 3;

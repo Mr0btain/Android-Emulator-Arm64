@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install the built emulator (out/build/distribution/emulator) into the
-# Android SDK as the "emulator" package. An existing emulator/ is moved to
-# emulator.bak-<timestamp>. Writes package.xml so sdkmanager, avdmanager and
+# Android SDK as the "emulator" package. A previous native build is
+# replaced; any other emulator/ is moved to emulator.bak-<timestamp>. Writes package.xml so sdkmanager, avdmanager and
 # the IDE treat it as installed (and system images' emulator dependency is met).
 set -euo pipefail
 
@@ -15,7 +15,10 @@ DST="$SDK/emulator"
 rev="$(sed -n 's/^Pkg.Revision=//p' "$SRC/source.properties")"
 IFS=. read -r major minor micro _ <<<"$rev"
 
-if [ -e "$DST" ]; then
+if grep -qs "native linux-aarch64 build" "$DST/package.xml"; then
+  echo "Replacing previous native build in $DST"
+  rm -rf "$DST"
+elif [ -e "$DST" ]; then
   bak="$DST.bak-$(date +%Y%m%d-%H%M%S)"
   echo "Moving existing $DST -> $bak"
   mv "$DST" "$bak"

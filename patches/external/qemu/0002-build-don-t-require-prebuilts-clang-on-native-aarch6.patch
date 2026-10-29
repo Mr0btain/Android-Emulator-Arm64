@@ -1,7 +1,7 @@
 From 170e6ff318d05cac010f15ba90ea44526fcc1bbd Mon Sep 17 00:00:00 2001
 From: nick <wnbarbe1@gmail.com>
 Date: Wed, 28 Oct 2026 20:32:43 -0400
-Subject: [PATCH 2/4] build: don't require prebuilts/clang on native aarch64
+Subject: [PATCH 2/5] build: don't require prebuilts/clang on native aarch64
  hosts
 
 The linux-aarch64 toolchain uses the system GNU toolchain, and AOSP's
