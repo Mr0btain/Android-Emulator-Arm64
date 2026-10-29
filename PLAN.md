@@ -180,6 +180,13 @@ and start.
   In IntelliJ's Device Manager keep Graphics = Software and Boot = Cold.
   Cold boot under KVM: ~45 s; a "System UI isn't responding" dialog may show
   once right after boot (tap Wait).
+- **Android 17 / API 37** (`arm64-37` AVD) runs on our 35.6.3 build: cold boot
+  82 s under KVM, home screen, no crashes. Google's index says it needs emulator
+  >= 37.2.11, but public emulator source stops at 35.6.3 (`emu-master-dev`,
+  2025-03) and there is no official linux-arm64 emulator, so sdkmanager would
+  pull the x86-64 one. Install images with `scripts/install-sysimg.py` instead
+  (verifies SHA-1, writes package.xml without the emulator dependency).
+  API 36/36.1 need only >= 35.4.9 and install normally.
 - sdkmanager recognizes our build as the `emulator` package via the
   `package.xml` that `scripts/install-sdk.sh` writes.
 
