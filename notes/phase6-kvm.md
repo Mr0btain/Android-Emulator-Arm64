@@ -29,6 +29,17 @@
 - Newer builds removed error handling slbounce relies on. Reported working:
   26100.1742 (24H2 RTM), 26100.1, 22621.4317. Reported failing: 22621.2715,
   Canary. Always verify with `sltest.efi` (green line = EL2 reached).
+- Ours: `Windows11_Client_arm64_en-us_26300_9457.iso` -> `install.wim` image 1
+  -> tcblaunch.exe **10.0.26100.9457**, sha256
+  `04b694994054b3e491de9185eaeb842bee629535dc7fef1f9d68c0375d45d954`
+  (saved in `out/win/`). Much newer than the reported-good builds: untested.
+- WinSxS has a reverse delta (`.../tcbboot_.../r/tcblaunch.exe`) back to
+  26100.1, but it's MSDelta **PA31**, which needs Windows'
+  UpdateCompression.dll; no Linux tool applies it.
+- Fallback for an older build: winbindex (m417z) indexes tcblaunch.exe
+  versions with download links to Microsoft's symbol server
+  (msdl.microsoft.com, keyed by PE timestamp + SizeOfImage).
+- /tmp is a 7 GB tmpfs: extract install.wim under out/, not the scratchpad.
 
 ## Steps
 1. Get tcblaunch.exe, check its version.
