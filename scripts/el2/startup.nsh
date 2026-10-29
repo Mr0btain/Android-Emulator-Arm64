@@ -1,9 +1,10 @@
 @echo -off
 # Run by the UEFI shell in \EFI\slbounce\ (boot entry "Ubuntu (EL2 KVM)"):
 # install the slbounce hook, then hand over to the EL2 GRUB.
-for %i in fs0 fs1 fs2 fs3 fs4 fs5 fs6 fs7
-  if exist %i:\EFI\slbounce\slbounce.efi then
-    %i:
+# The ESP's fsN number depends on the firmware (fs13 on this X13s), so scan.
+for %i run (0 31)
+  if exist fs%i:\EFI\slbounce\slbounce.efi then
+    fs%i:
     cd \EFI\slbounce
     load slbounce.efi
     grubel2.efi
@@ -11,5 +12,5 @@ for %i in fs0 fs1 fs2 fs3 fs4 fs5 fs6 fs7
     goto done
   endif
 endfor
-echo "slbounce.efi not found on fs0-fs7"
+echo "slbounce.efi not found on fs0-fs31"
 :done

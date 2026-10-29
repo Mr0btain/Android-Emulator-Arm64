@@ -7,7 +7,7 @@
 #     -> slbounce sees the EL2 dtb at ExitBootServices and Secure-Launches to EL2
 #
 # BootOrder is kept (normal Ubuntu stays first); pick "Ubuntu (EL2 KVM)" from
-# the F12 boot menu. The first run also sets it as BootNext for one test boot.
+# the F12 boot menu. Each run also sets it as BootNext for one test boot.
 # Needs root. --remove undoes everything.
 set -euo pipefail
 
@@ -56,8 +56,8 @@ if [ -z "$n" ]; then
   efibootmgr -q -c -d "$DISK" -p "$PART" -L "$LABEL" -l '\EFI\slbounce\shellaa64.efi'
   n="$(entries "$LABEL")"
   efibootmgr -q -o "$order,$n"   # -c put it first; normal Ubuntu stays first
-  efibootmgr -q -n "$n"          # one test boot
 fi
+efibootmgr -q -n "$n"            # next boot only: test it
 
 ls -l "$ESP/tcblaunch.exe" "$DST"
 efibootmgr | grep -E "^Boot(Next|Order|Current)"
