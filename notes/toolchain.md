@@ -61,6 +61,12 @@ Packaging: `cmake.py` only runs the last `--task`; the install step is
    `common/e2fsprogs/linux-aarch64/lib/libuuid.a` (and the libunwind
    `linux-aarch64` archives) use local-exec TLS relocations, which alias the
    executable's TLS when linked into a `.so`. Fix: system `libuuid`/`libunwind`.
+   Verified: no `R_AARCH64_TLSLE_*` relocations left in any installed `.so`
+   (`readelf -r ... | grep TLSLE`), and QEMU runs past device setup.
+
+First TCG boot (4 vCPU, 2 GB, swiftshader): guest kernel + init fine, adb up
+within minutes, but system_server takes >35 min and hits ANR/watchdog-style
+timeouts. Usable only for smoke tests; KVM (Phase 6) is what makes it practical.
 
 Debugging recipe: gdb with `set follow-fork-mode parent` (the launcher execs
 qemu in the same PID; crashpad_handler is a forked child). Copy the unstripped

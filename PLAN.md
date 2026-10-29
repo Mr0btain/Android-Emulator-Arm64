@@ -9,7 +9,7 @@
 | 2 Fetch sources | done: 54 projects, ~17 GB, `scripts/fetch-sources.sh` |
 | 3 Toolchain port | done: configures (see `notes/toolchain.md`, 2 patches) |
 | 4 Build | done: native `emulator` 35.6.3 + `qemu-system-aarch64` (8 patches total, see `patches/`) |
-| 5 Install + run | emulator installed in SDK; cmdline-tools installed; waiting on system image license |
+| 5 Install + run | AVD `arm64-35` (Android 15) runs under TCG: no crash, adb works, boot is very slow (>35 min to system_server FinishBooting) |
 | 6 KVM (optional) | — |
 
 Goal: build the Android Emulator (`external/qemu`, branch `emu-master-dev`)
