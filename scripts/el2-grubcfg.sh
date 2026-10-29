@@ -36,7 +36,7 @@ menuentry 'EL2 diagnostics (does not boot)' {
 	echo '== EFI config tables before GRUB (look for DEVICE TREE / b1b621d5):'
 	lsefisystab
 	echo '== firmware FDT model (error = no firmware DTB):'
-	fdtdump --prop model
+	fdtdump -p model
 	set debug=fdt
 	echo '== loading the EL2 dtb:'
 	devicetree	/lib/firmware/$ver/$DTB
