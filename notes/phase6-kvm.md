@@ -91,3 +91,9 @@ to `/boot/el2/vmlinuz-<ver>` and the EL2 entry boots that.
 **Result 2026-10-29: EL2 boot works.** `CPU: All CPU(s) started at EL2`,
 `kvm [1]: VHE mode initialized successfully`, `/dev/kvm` present (GICv3 only:
 "no GICV resource entry, disabling GICv2 emulation" is expected).
+
+**AVD under KVM (2026-10-29):** `emulator -avd arm64-35 -accel on -no-window
+-gpu swiftshader_indirect -no-snapshot` cold boots to `sys.boot_completed=1` in
+**41 s** (TCG: ~39 min plus Watchdog restart loops). Guest sees the host core
+(`CPU part 0xd4b`, Cortex-A78C), no Watchdog kills. `/dev/kvm` access comes
+from the logind seat ACL; add the user to `kvm` for non-seat sessions.

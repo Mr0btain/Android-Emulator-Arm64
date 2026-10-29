@@ -10,7 +10,7 @@
 | 3 Toolchain port | done: configures (see `notes/toolchain.md`, 2 patches) |
 | 4 Build | done: native `emulator` 35.6.3 + `qemu-system-aarch64` (8 patches total, see `patches/`) |
 | 5 Install + run | AVD `arm64-35` (Android 15) runs under TCG: no crash, adb works, boot is very slow (>35 min to system_server FinishBooting) |
-| 6 KVM (optional) | EL2 boot via slbounce works, `/dev/kvm` present (`scripts/el2-install.sh`, `notes/phase6-kvm.md`) |
+| 6 KVM (optional) | done: EL2 boot via slbounce (`scripts/el2-install.sh`), AVD cold-boots in 41 s with `-accel on` |
 
 Goal: build the Android Emulator (`external/qemu`, branch `emu-master-dev`)
 natively on this laptop, and fix the rest of the Android SDK so IntelliJ /
