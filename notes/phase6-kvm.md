@@ -36,9 +36,23 @@
 - WinSxS has a reverse delta (`.../tcbboot_.../r/tcblaunch.exe`) back to
   26100.1, but it's MSDelta **PA31**, which needs Windows'
   UpdateCompression.dll; no Linux tool applies it.
-- Fallback for an older build: winbindex (m417z) indexes tcblaunch.exe
-  versions with download links to Microsoft's symbol server
-  (msdl.microsoft.com, keyed by PE timestamp + SizeOfImage).
+- winbindex only indexes **x64** tcblaunch.exe; no use for arm64.
+- arm64 builds come from Microsoft's symbol server:
+  `https://msdl.microsoft.com/download/symbols/tcblaunch.exe/<id>/tcblaunch.exe`
+  (id = PE timestamp + SizeOfImage). IDs/hashes from LukeMech/hp-omnibook-x14-fe0
+  (`rootfs/usr/bin/omnibook-kvm`, TCB_VERSIONS). Downloaded to `out/el2/tcb/<ver>/`:
+
+  | version | id | sha256 | reports |
+  |---|---|---|---|
+  | 26100.1742 | EC74C165f6000 | 5dfcd025...4770d03d | works on X1E (Yoga Slim 7x), resets OmniBook |
+  | 22621.4317 | BEB81838ed000 | 799c8cee...3cf7ff81e | works on sc8280xp (**X13s**) |
+  | 26100.4351 | 66A7C7F3100000 | 463520e1...1333e548 | works on X1E |
+
+  Plan: try 26100.1742 first (user's choice), 22621.4317 as fallback.
+- Same script's notes: Fedora GRUB can't chainload EFI drivers so they put
+  systemd-boot first; kernel args `id_aa64mmfr0.ecv=1` (X1E firmware resets on
+  CNTPOFF_EL2) and `cpuidle.off=1` (input lag at EL2); upstream -el2 DTB's
+  remoteproc `iommus` hang 7.1+ kernels (we're on 7.0).
 - /tmp is a 7 GB tmpfs: extract install.wim under out/, not the scratchpad.
 
 ## Steps
