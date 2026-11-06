@@ -19,6 +19,10 @@ mkdir -p "$TOP/out"
 # Keep RAM headroom on the 14 GB X13s; override with JOBS=n.
 export CMAKE_BUILD_PARALLEL_LEVEL="${JOBS:-6}"
 
+# cmake.py regenerates the distribution dir; its prebuilts step fails if
+# out/distribution/prebuilts is left over from an earlier run.
+rm -rf "$TOP/out/distribution"
+
 cd "$QEMU"
 exec python3 android/build/python/cmake.py \
   --target linux_aarch64 \
