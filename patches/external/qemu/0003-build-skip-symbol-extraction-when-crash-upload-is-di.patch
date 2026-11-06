@@ -1,4 +1,4 @@
-From dbdef06e0c8123a227d72c462f5c781a0faeb99d Mon Sep 17 00:00:00 2001
+From 7fd39e0fa3b49547852d0caf1ce1297d3590983d Mon Sep 17 00:00:00 2001
 From: nick <wnbarbe1@gmail.com>
 Date: Wed, 28 Oct 2026 20:33:43 -0400
 Subject: [PATCH 3/7] build: skip symbol extraction when crash upload is
@@ -11,10 +11,10 @@ reached the dump_syms post-build step, which has no host binary here.
  1 file changed, 5 insertions(+)
 
 diff --git a/android/build/cmake/symbols.cmake b/android/build/cmake/symbols.cmake
-index 60d4c7a9..bd5510f7 100644
+index 92367822..aff359b1 100644
 --- a/android/build/cmake/symbols.cmake
 +++ b/android/build/cmake/symbols.cmake
-@@ -36,6 +36,11 @@ function(android_upload_symbols)
+@@ -43,6 +43,11 @@ function(android_upload_symbols)
          return()
    endif()
  

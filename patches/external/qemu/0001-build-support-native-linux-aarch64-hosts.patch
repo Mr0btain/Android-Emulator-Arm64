@@ -1,4 +1,4 @@
-From 9c8872a673bfbf01b02ea5a77ab97813b1a7d3b2 Mon Sep 17 00:00:00 2001
+From 664aa97ce9a8b15519da8a797ca7f2400e34f7e6 Mon Sep 17 00:00:00 2001
 From: nick <wnbarbe1@gmail.com>
 Date: Wed, 28 Oct 2026 20:29:39 -0400
 Subject: [PATCH 1/7] build: support native linux-aarch64 hosts
@@ -45,10 +45,10 @@ index 1fa863f9..37a73851 100644
      set(HOST_DARWIN_X86_64 TRUE PARENT_SCOPE)
    elseif(ANDROID_HOST_TAG STREQUAL "darwin-aarch64")
 diff --git a/android/build/python/aemu/tasks/compile.py b/android/build/python/aemu/tasks/compile.py
-index 15db4711..d7ce42d6 100644
+index 7c13766c..9e0be59d 100644
 --- a/android/build/python/aemu/tasks/compile.py
 +++ b/android/build/python/aemu/tasks/compile.py
-@@ -45,7 +45,7 @@ class CompileTask(BuildTask):
+@@ -52,7 +52,7 @@ class CompileTask(BuildTask):
              aosp / "prebuilts" / "cmake" / f"{platform.system().lower()}-x86" / "bin"
          )
          self.cmake_cmd = [
@@ -57,7 +57,7 @@ index 15db4711..d7ce42d6 100644
              "--build",
              destination,
              "--target",
-@@ -56,7 +56,7 @@ class CompileTask(BuildTask):
+@@ -63,7 +63,7 @@ class CompileTask(BuildTask):
              Path(destination) / "distribution-unstripped" / "emulator"
          )
          self.cmake_cmd_unstripped = [
@@ -67,10 +67,10 @@ index 15db4711..d7ce42d6 100644
              destination,
              "--prefix",
 diff --git a/android/build/python/aemu/tasks/configure.py b/android/build/python/aemu/tasks/configure.py
-index f1512fd1..5bf4b974 100644
+index 53e7f694..e04b6b76 100644
 --- a/android/build/python/aemu/tasks/configure.py
 +++ b/android/build/python/aemu/tasks/configure.py
-@@ -75,7 +75,7 @@ class ConfigureTask(BuildTask):
+@@ -77,7 +77,7 @@ class ConfigureTask(BuildTask):
                  / f"{platform.system().lower()}-x86"
                  / "bin"
              ),
@@ -80,10 +80,10 @@ index f1512fd1..5bf4b974 100644
              cmake,
              f"-B{destination}",
 diff --git a/android/scripts/unix/gen-android-sdk-toolchain.sh b/android/scripts/unix/gen-android-sdk-toolchain.sh
-index 0c753d5a..7fa8e535 100755
+index 4d2340fa..8e9a2933 100755
 --- a/android/scripts/unix/gen-android-sdk-toolchain.sh
 +++ b/android/scripts/unix/gen-android-sdk-toolchain.sh
-@@ -1025,7 +1025,13 @@ print_info () {
+@@ -1060,7 +1060,13 @@ print_info () {
              ;;
          libcplusplus)
              if [ "$BUILD_HOST" = "linux" -a "$BUILD_ARCH" = "aarch64" ]; then
@@ -96,5 +96,5 @@ index 0c753d5a..7fa8e535 100755
 +                    printf "%s\n" "/usr/aarch64-linux-gnu/lib/libstdc++.so.6"
 +                fi
              else
-                 printf "%s\n" "$CLANG_DIR/lib/libc++.so"
+                 printf "%s\n" "$CLANG_DIR/lib/x86_64-unknown-linux-gnu/libc++.so"
              fi

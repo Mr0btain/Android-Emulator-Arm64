@@ -1,4 +1,4 @@
-From cabcf99b3ddc0a8093c20c29efcc3f9e1795e4d3 Mon Sep 17 00:00:00 2001
+From cc134f157224deb5a10068a154738566b07ec118 Mon Sep 17 00:00:00 2001
 From: nick <wnbarbe1@gmail.com>
 Date: Wed, 28 Oct 2026 22:30:13 -0400
 Subject: [PATCH 6/7] main: use cpu 'max' for arm64 guests on aarch64 Linux
@@ -12,10 +12,10 @@ TCG ('The host CPU type can only be used with KVM'). Use it only when
  1 file changed, 13 insertions(+)
 
 diff --git a/android-qemu2-glue/main.cpp b/android-qemu2-glue/main.cpp
-index ce784d98..a73f858d 100644
+index f1d9e3b2..66194ed4 100644
 --- a/android-qemu2-glue/main.cpp
 +++ b/android-qemu2-glue/main.cpp
-@@ -2607,6 +2607,19 @@ extern "C" int main(int argc, char** argv) {
+@@ -2657,6 +2657,19 @@ extern "C" int main(int argc, char** argv) {
      } else {
          args.add(kTarget.qemuCpu);
      }
