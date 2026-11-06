@@ -1,4 +1,9 @@
-# Native arm64 Android Emulator for the ThinkPad X13s
+# Native arm64 Android Emulator for the ThinkPad X13s: original build plan
+
+> History: the plan this repo was built from (2026-10-28 – 10-29). Current
+> usage is in `README.md`. The EL2/KVM boot work (Phase 6) moved to the
+> separate `kernel-work` repo on 2026-11-06 (scripts, slbounce notes, and the
+> patched `-el2` kernel that keeps battery/audio/suspend working at EL2).
 
 ## Status
 
@@ -10,7 +15,7 @@
 | 3 Toolchain port | done: configures (see `notes/toolchain.md`, 2 patches) |
 | 4 Build | done: native `emulator` 35.6.3 + `qemu-system-aarch64` (8 patches total, see `patches/`) |
 | 5 Install + run | AVD `arm64-35` (Android 15) runs under TCG: no crash, adb works, boot is very slow (>35 min to system_server FinishBooting) |
-| 6 KVM (optional) | done: EL2 boot via slbounce (`scripts/el2-install.sh`), AVD cold-boots in 41 s with `-accel on` |
+| 6 KVM (optional) | done: EL2 boot via slbounce, AVD cold-boots in 41 s with `-accel on`. **Moved to `kernel-work`** |
 
 Goal: build the Android Emulator (`external/qemu`, branch `emu-master-dev`)
 natively on this laptop, and fix the rest of the Android SDK so IntelliJ /

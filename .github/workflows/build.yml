@@ -1,0 +1,111 @@
+name: Build emulator (linux-aarch64)
+
+# Push a tag like v35.6.3-1 to build and publish a release.
+# Run manually (Actions -> Build emulator -> Run workflow) to build only;
+# the tarball is then attached to the run as an artifact.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Free native arm64 runner (public repos). The build itself runs in an
+    # ubuntu:26.04 container: that's the toolchain the patches were made for.
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk space
+        # Sources ~13 GB + build tree ~36 GB. Drop preinstalled toolchains
+        # this build doesn't use.
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup \
+                      /opt/hostedtoolcache /usr/local/share/boost /usr/share/swift \
+                      /usr/local/share/powershell /usr/local/share/chromium /opt/microsoft || true
+          sudo docker image prune --all --force || true
+          df -h /
+
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: ccache-${{ hashFiles('sources.list', 'patches/**') }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-${{ hashFiles('sources.list', 'patches/**') }}-
+            ccache-
+
+      - name: Build in ubuntu:26.04
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/w" -w /w \
+            -e CI=1 -e JOBS=4 -e CCACHE_DIR=/w/.ccache -e CCACHE_MAXSIZE=5G \
+            ubuntu:26.04 scripts/ci-build.sh
+          sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
+
+      - name: Upload tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-emulator-linux-aarch64
+          path: |
+            out/release/*.tar.xz
+            out/release/*.sha256
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: out/build.log
+          if-no-files-found: ignore
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-emulator-linux-aarch64
+          path: dist
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          tarball=$(ls dist/*.tar.xz)
+          name=$(basename "$tarball" .tar.xz)
+          ver=${name#android-emulator-}; ver=${ver%-linux-aarch64}
+          cat > notes.md <<EOF
+          Native **linux-aarch64** build of the Android Emulator (\`${ver}\`),
+          built from pinned AOSP sources plus the patches in this repo.
+
+          **Requires:** arm64 Linux with glibc >= 2.43 / GCC 15 libstdc++ (built on Ubuntu 26.04).
+          Use \`-accel on\` only where \`/dev/kvm\` exists; otherwise \`-accel off\` (TCG, slow).
+
+          ### Install
+          \`\`\`sh
+          git clone https://github.com/${GITHUB_REPOSITORY}.git && cd $(basename "$GITHUB_REPOSITORY")
+          curl -LO https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${name}.tar.xz
+          curl -LO https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${name}.tar.xz.sha256
+          scripts/install-sdk.sh ${name}.tar.xz
+          \`\`\`
+
+          ### SHA-256
+          \`\`\`
+          $(cat dist/*.sha256)
+          \`\`\`
+          EOF
+          gh release create "$TAG" dist/* --repo "$GITHUB_REPOSITORY" \
+            --title "Android Emulator ${ver} ($TAG)" --notes-file notes.md

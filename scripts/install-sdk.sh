@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# Install the built emulator (out/build/distribution/emulator) into the
-# Android SDK as the "emulator" package. A previous native build is
-# replaced; any other emulator/ is moved to emulator.bak-<timestamp>. Writes package.xml so sdkmanager, avdmanager and
+# Install the emulator into the Android SDK as the "emulator" package, from
+# a local build (out/build/distribution/emulator) or a release tarball:
+#   scripts/install-sdk.sh                                   # local build
+#   scripts/install-sdk.sh android-emulator-*-linux-aarch64.tar.xz
+# A previous native build is replaced; any other emulator/ is moved to
+# emulator.bak-<timestamp>. Writes package.xml so sdkmanager, avdmanager and
 # the IDE treat it as installed (and system images' emulator dependency is met).
 set -euo pipefail
 
@@ -10,7 +13,16 @@ SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}}"
 SRC="$TOP/out/build/distribution/emulator"
 DST="$SDK/emulator"
 
-[ -x "$SRC/emulator" ] || { echo "No build at $SRC; run scripts/build.sh first." >&2; exit 1; }
+if [ -n "${1:-}" ]; then
+  [ -f "$1" ] || { echo "No such file: $1" >&2; exit 1; }
+  if [ -f "$1.sha256" ]; then (cd "$(dirname "$1")" && sha256sum -c "$(basename "$1").sha256"); fi
+  tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
+  tar -C "$tmp" -xf "$1"
+  SRC="$tmp/emulator"
+fi
+mkdir -p "$SDK"
+
+[ -x "$SRC/emulator" ] || { echo "No emulator at $SRC (run scripts/build.sh, or pass a release tarball)." >&2; exit 1; }
 
 rev="$(sed -n 's/^Pkg.Revision=//p' "$SRC/source.properties")"
 IFS=. read -r major minor micro _ <<<"$rev"
