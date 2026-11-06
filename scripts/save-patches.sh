@@ -12,7 +12,9 @@ paths=("$@")
 for path in "${paths[@]}"; do
   dir="$TOP/src/$path"
   [ -d "$dir/.git" ] || continue
-  base="$(git -C "$dir" rev-parse FETCH_HEAD 2>/dev/null)" || continue
+  # Base: the revision pinned in sources.list, else the last fetched one.
+  base="$(awk -v p="$path" '$1==p && $3 ~ /^[0-9a-f]{40}$/ {print $3}' "$TOP/sources.list")"
+  [ -n "$base" ] || base="$(git -C "$dir" rev-parse FETCH_HEAD 2>/dev/null)" || continue
   [ "$(git -C "$dir" rev-list --count "$base..HEAD")" -gt 0 ] || continue
   rm -rf "$TOP/patches/$path"
   mkdir -p "$TOP/patches/$path"

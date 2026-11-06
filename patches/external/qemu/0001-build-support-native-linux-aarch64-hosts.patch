@@ -1,7 +1,7 @@
 From 9c8872a673bfbf01b02ea5a77ab97813b1a7d3b2 Mon Sep 17 00:00:00 2001
 From: nick <wnbarbe1@gmail.com>
 Date: Wed, 28 Oct 2026 20:29:39 -0400
-Subject: [PATCH 1/7] build: support native linux-aarch64 hosts
+Subject: [PATCH 1/8] build: support native linux-aarch64 hosts
 
 - toolchain.cmake: detect an aarch64 Linux host instead of assuming
   linux-x86_64, so a linux-aarch64 target is a native build.

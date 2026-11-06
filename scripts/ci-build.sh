@@ -50,12 +50,6 @@ if [ -n "${CI:-}" ]; then
   df -h "$TOP" | tail -1
 fi
 
-# Helper projects (flatc, ...) are configured as nested CMake builds with no
-# toolchain file, so they use CMake's own compiler lookup. That found nothing
-# in the CI container ("CMAKE_CXX_COMPILER not set"); name the compilers.
-export CC="${CC:-gcc}" CXX="${CXX:-g++}"
-echo "CC=$(command -v "$CC") CXX=$(command -v "$CXX")"
-
 echo "::group::build"
 ccache -z >/dev/null || true
 rc=0
