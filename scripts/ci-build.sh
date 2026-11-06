@@ -52,8 +52,19 @@ fi
 
 echo "::group::build"
 ccache -z >/dev/null || true
-scripts/build.sh
+rc=0
+scripts/build.sh || rc=$?
 ccache -s || true
 echo "::endgroup::"
+if [ "$rc" != 0 ]; then
+  # Collect the nested CMake configure logs for the failure artifact.
+  mkdir -p out/logs
+  find out/build -path '*/CMakeFiles/*' \( -name CMakeConfigureLog.yaml -o -name CMakeError.log \) \
+    -newer sources.list -printf '%P\n' 2>/dev/null | while read -r f; do
+      mkdir -p "out/logs/$(dirname "$f")"; cp "out/build/$f" "out/logs/$f"
+    done
+  df -h "$TOP" > out/logs/df.txt || true
+  exit "$rc"
+fi
 
 scripts/package.sh

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Package out/build/distribution/emulator as a release tarball:
+# Package out/build/distribution/emulator for release:
 #   out/release/android-emulator-<Pkg.Revision>-linux-aarch64.tar.xz (+ .sha256)
+#   out/release/android-emulator-arm64_<Pkg.Revision>-1_arm64.deb   (+ .sha256)
 # The tarball holds a top-level emulator/ directory (the SDK "emulator"
 # package). Install it with: scripts/install-sdk.sh <tarball>
 set -euo pipefail
@@ -19,3 +20,5 @@ tar -C "$DIST" --owner=0 --group=0 --sort=name -cf - emulator | xz -T0 -6 > "$OU
 (cd "$OUT" && sha256sum "$name.tar.xz" > "$name.tar.xz.sha256")
 ls -lh "$OUT/$name.tar.xz"
 cat "$OUT/$name.tar.xz.sha256"
+
+"$TOP/scripts/package-deb.sh" "$DIST/emulator"

@@ -46,15 +46,17 @@ jobs:
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/w" -w /w \
             -e CI=1 -e JOBS=4 -e CCACHE_DIR=/w/.ccache -e CCACHE_MAXSIZE=5G \
-            ubuntu:26.04 scripts/ci-build.sh
+            ubuntu:26.04 scripts/ci-build.sh || rc=$?
           sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
+          exit "${rc:-0}"
 
-      - name: Upload tarball
+      - name: Upload packages
         uses: actions/upload-artifact@v4
         with:
           name: android-emulator-linux-aarch64
           path: |
             out/release/*.tar.xz
+            out/release/*.deb
             out/release/*.sha256
           if-no-files-found: error
           retention-days: 14
@@ -64,7 +66,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-log
-          path: out/build.log
+          path: |
+            out/build.log
+            out/logs/
           if-no-files-found: ignore
 
   release:
@@ -86,6 +90,7 @@ jobs:
         run: |
           tarball=$(ls dist/*.tar.xz)
           name=$(basename "$tarball" .tar.xz)
+          deb=$(basename "$(ls dist/*.deb)")
           ver=${name#android-emulator-}; ver=${ver%-linux-aarch64}
           cat > notes.md <<EOF
           Native **linux-aarch64** build of the Android Emulator (\`${ver}\`),
@@ -94,7 +99,15 @@ jobs:
           **Requires:** arm64 Linux with glibc >= 2.43 / GCC 15 libstdc++ (built on Ubuntu 26.04).
           Use \`-accel on\` only where \`/dev/kvm\` exists; otherwise \`-accel off\` (TCG, slow).
 
-          ### Install
+          ### Install: Debian/Ubuntu package
+          \`\`\`sh
+          curl -LO https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${deb}
+          sudo apt install ./${deb}
+          android-emulator-sdk-link      # once per user: links ~/Android/Sdk/emulator (or \$ANDROID_HOME)
+          \`\`\`
+          The package installs to \`/usr/lib/android-emulator/emulator\`; \`android-emulator-sdk-link --remove\` undoes the link.
+
+          ### Install: tarball into the SDK directly
           \`\`\`sh
           git clone https://github.com/${GITHUB_REPOSITORY}.git && cd $(basename "$GITHUB_REPOSITORY")
           curl -LO https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${name}.tar.xz

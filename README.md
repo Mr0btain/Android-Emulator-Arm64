@@ -16,19 +16,34 @@ in roughly 40–80 s with KVM.
 Requirements: arm64 Linux with glibc ≥ 2.43 and GCC 15's libstdc++ (Ubuntu
 26.04 or newer), plus an Android SDK in `~/Android/Sdk` (or `$ANDROID_HOME`).
 
+Each release has two downloads:
+
+**Debian/Ubuntu package** (`android-emulator-arm64_<ver>-<n>_arm64.deb`):
+
+```sh
+sudo apt install ./android-emulator-arm64_35.6.3-1_arm64.deb   # pulls in runtime libs
+android-emulator-sdk-link     # once per user
+```
+
+The package installs to `/usr/lib/android-emulator/emulator`. A system
+package can't write into each user's SDK, so `android-emulator-sdk-link`
+points `$ANDROID_HOME/emulator` (default `~/Android/Sdk/emulator`) at it. Any
+existing emulator there is moved to `emulator.bak-<timestamp>`. The link
+survives package upgrades. Undo it with `android-emulator-sdk-link --remove`.
+
+**Tarball** (`android-emulator-<ver>-linux-aarch64.tar.xz`), copied into the
+SDK:
+
 ```sh
 git clone <this repo> && cd <repo>
-# download android-emulator-<ver>-linux-aarch64.tar.xz (+ .sha256) from Releases, then:
 scripts/install-sdk.sh android-emulator-35.6.3-linux-aarch64.tar.xz
 ```
 
 `install-sdk.sh` checks the `.sha256` file if it's next to the tarball and
-installs to `$SDK/emulator`. Any existing (e.g. x86-64) emulator is moved to
-`emulator.bak-<timestamp>`. It also writes the `package.xml` that lets
-`sdkmanager` and the IDE see the package as installed.
+copies the emulator to `$SDK/emulator`, again moving any existing one aside.
 
-Runtime libraries come from the system: X11/xcb, PulseAudio, libstdc++,
-libunwind, libuuid. A desktop install already has them.
+Either way, the emulator ships with the `package.xml` that lets `sdkmanager`
+and the IDE see it as the installed `emulator` package.
 
 ## Run
 
@@ -46,7 +61,7 @@ Tips:
 - **KVM** needs `/dev/kvm`. On Snapdragon laptops the Qualcomm hypervisor
   holds EL2, so there's no KVM by default. An EL2 boot via slbounce (plus a
   patched kernel so battery, audio and suspend still work) lives in the
-  separate `kernel-work` repo.
+  separate https://github.com/Mr0btain/X13S-KVM-Kernel repo.
 - **Use the software GPU and cold boot.** In the AVD's `config.ini`:
   `hw.gpu.enabled=yes`, `hw.gpu.mode=swiftshader_indirect`,
   `fastboot.forceColdBoot=yes`, `fastboot.forceFastBoot=no`. With
@@ -75,7 +90,7 @@ scripts/ci-build.sh                # apt packages, fetch, patch, build, package
 scripts/fetch-sources.sh -j 8      # src/ (pinned revisions from sources.list)
 scripts/apply-patches.sh           # patches/ -> src/
 scripts/build.sh                   # out/build, JOBS=n to limit parallelism
-scripts/package.sh                 # out/release/android-emulator-<ver>-linux-aarch64.tar.xz
+scripts/package.sh                 # out/release/: .tar.xz + .deb (+ .sha256)
 scripts/install-sdk.sh             # install the local build
 ```
 
@@ -92,8 +107,8 @@ with ccache kept between runs.
   attaches the tarball to the run as an artifact.
 - **Release**: push a tag `v<emulator version>-<n>`, e.g.
   `git tag v35.6.3-1 && git push origin v35.6.3-1`. The workflow builds,
-  then creates a GitHub release with the tarball, its SHA-256 and install
-  notes.
+  then creates a GitHub release with the .deb, the tarball, their SHA-256s
+  and install notes.
 
 The free arm64 runners are only available to public repos.
 
@@ -123,7 +138,8 @@ scripts/
   fetch-sources.sh      clone/update everything in sources.list into src/ (plain git, shallow)
   apply-patches.sh      apply patches/ onto src/
   build.sh              configure + build (cmake.py --target linux_aarch64)
-  package.sh            out/build/distribution/emulator -> release tarball
+  package.sh            out/build/distribution/emulator -> release tarball + .deb
+  package-deb.sh        .deb (also from a release tarball: package-deb.sh <tarball>)
   install-sdk.sh        install a local build or release tarball into the SDK
   ci-build.sh           all of the above from scratch (used by CI)
   pin-sources.sh        pin sources.list to the fetched revisions
