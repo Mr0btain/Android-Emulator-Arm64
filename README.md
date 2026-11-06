@@ -46,7 +46,7 @@ Tips:
 - **KVM** needs `/dev/kvm`. On Snapdragon laptops the Qualcomm hypervisor
   holds EL2, so there's no KVM by default. An EL2 boot via slbounce (plus a
   patched kernel so battery, audio and suspend still work) lives in the
-  separate `kernel-work` repo.
+  separate https://github.com/Mr0btain/X13S-KVM-Kernel repo.
 - **Use the software GPU and cold boot.** In the AVD's `config.ini`:
   `hw.gpu.enabled=yes`, `hw.gpu.mode=swiftshader_indirect`,
   `fastboot.forceColdBoot=yes`, `fastboot.forceFastBoot=no`. With
