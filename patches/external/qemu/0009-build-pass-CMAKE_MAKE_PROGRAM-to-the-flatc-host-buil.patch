@@ -1,0 +1,28 @@
+From 32acf4a80ce29a4e469b7a2d9162d5a5384c1401 Mon Sep 17 00:00:00 2001
+From: Mr0btain <108532146+Mr0btain@users.noreply.github.com>
+Date: Fri, 6 Nov 2026 17:00:40 -0500
+Subject: [PATCH 9/9] build: pass CMAKE_MAKE_PROGRAM to the flatc host build
+
+cmake.py prepends depot_tools to PATH, and its ninja wrapper exits with
+'Unknown architecture' on aarch64. The nested flatbuffers configure then
+fails with 'CMAKE_CXX_COMPILER not set'. Use the outer build's ninja.
+---
+ android/third_party/CMakeLists.txt | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/android/third_party/CMakeLists.txt b/android/third_party/CMakeLists.txt
+index a1da7e4f..f6c1d2a2 100644
+--- a/android/third_party/CMakeLists.txt
++++ b/android/third_party/CMakeLists.txt
+@@ -177,7 +177,10 @@ if(NOT TARGET flatc)
+     flatbuffers-flatc
+     SOURCE_DIR ${AOSP_ROOT}/external/flatbuffers
+     BINARY_DIR ${FLATC_BINARY_DIR}
+-    CMAKE_ARGS -DFLATBUFFERS_BUILD_TESTS=OFF -DFLATBUFFERS_BUILD_CPP17=ON
++    # Pass our ninja: cmake.py puts depot_tools first on PATH, and its
++    # "ninja" wrapper only knows x86 (fails on aarch64 hosts).
++    CMAKE_ARGS -DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}
++               -DFLATBUFFERS_BUILD_TESTS=OFF -DFLATBUFFERS_BUILD_CPP17=ON
+                -DFLATBUFFERS_BUILD_FLAT_LIB=OFF -DFLATBUFFERS_BUILD_FLATC=ON
+                -DFLATBUFFERS_STATIC_FLATC=OFF -DFLATBUFFERS_BUILD_FLATHASH=OFF
+                ${EXTRA_FLATC_ARGS}

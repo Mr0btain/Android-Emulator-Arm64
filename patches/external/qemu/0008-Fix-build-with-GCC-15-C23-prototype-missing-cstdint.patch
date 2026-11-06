@@ -1,0 +1,38 @@
+From 32387844f8b5d0b35e4058059afa779b1cc86510 Mon Sep 17 00:00:00 2001
+From: Mr0btain <108532146+Mr0btain@users.noreply.github.com>
+Date: Fri, 6 Nov 2026 17:06:25 -0500
+Subject: [PATCH 8/9] Fix build with GCC 15 (C23 prototype, missing <cstdint>)
+
+multitouch_update_touchpad() was declared with an empty parameter list,
+which C23 treats as (void). netsim/util/os_utils.h uses uint16_t without
+including <cstdint>.
+---
+ android/android-emu/android/multitouch-screen.h | 2 +-
+ android/third_party/netsim/util/os_utils.h      | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/android/android-emu/android/multitouch-screen.h b/android/android-emu/android/multitouch-screen.h
+index cccbfa71..99f51d99 100644
+--- a/android/android-emu/android/multitouch-screen.h
++++ b/android/android-emu/android/multitouch-screen.h
+@@ -102,7 +102,7 @@ extern bool multitouch_should_skip_sync(int buttons_state);
+ extern bool multitouch_is_second_finger(int buttons_state);
+ 
+ extern void multitouch_update_displayId(int displayId);
+-extern void multitouch_update_touchpad();
++extern void multitouch_update_touchpad(int touchpadId);
+ 
+ extern void multitouch_update(MTESource source,
+                               const SkinEvent* const data,
+diff --git a/android/third_party/netsim/util/os_utils.h b/android/third_party/netsim/util/os_utils.h
+index b6e3f56c..840d37eb 100644
+--- a/android/third_party/netsim/util/os_utils.h
++++ b/android/third_party/netsim/util/os_utils.h
+@@ -18,6 +18,7 @@
+ // OS specific utility functions.
+ 
+ #include <memory>
++#include <cstdint>
+ #include <optional>
+ #include <string>
+ 
