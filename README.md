@@ -1,7 +1,7 @@
 # Android Emulator for linux-aarch64
 
 A native **arm64 Linux** build of the Android Emulator (`emulator` +
-`qemu-system-aarch64`, version **35.6.3**). Google ships no linux-arm64
+`qemu-system-aarch64`, version **37.3.7**). Google ships no linux-arm64
 emulator, and the SDK pulls in x86-64 binaries that won't run. This repo
 builds the emulator from AOSP sources with a small set of patches, packages
 it, and installs it into the Android SDK so `avdmanager`, Android Studio and
@@ -21,7 +21,7 @@ Each release has two downloads:
 **Debian/Ubuntu package** (`android-emulator-arm64_<ver>-<n>_arm64.deb`):
 
 ```sh
-sudo apt install ./android-emulator-arm64_35.6.3-1_arm64.deb   # pulls in runtime libs
+sudo apt install ./android-emulator-arm64_37.3.7-1_arm64.deb   # pulls in runtime libs
 android-emulator-sdk-link     # once per user
 ```
 
@@ -36,7 +36,7 @@ SDK:
 
 ```sh
 git clone <this repo> && cd <repo>
-scripts/install-sdk.sh android-emulator-35.6.3-linux-aarch64.tar.xz
+scripts/install-sdk.sh android-emulator-37.3.7-linux-aarch64.tar.xz
 ```
 
 `install-sdk.sh` checks the `.sha256` file if it's next to the tarball and
@@ -70,10 +70,11 @@ Tips:
   Graphics = Software and Boot = Cold.
 - **sdkmanager:** cmdline-tools 23+ replaced the Java `sdkmanager` with an
   x86-64 binary. Use `cmdline-tools/22.0/bin/sdkmanager`.
-- **API 37+ images** declare a minimum emulator revision newer than any
-  public source (≥ 37.2.11), so sdkmanager would swap in the x86-64 emulator.
-  Install them with `scripts/install-sysimg.py` (verifies the SHA-1 and skips
-  that dependency). API 36/36.1 install normally.
+- **System images** declaring a minimum emulator revision newer than this
+  build would make sdkmanager swap in the x86-64 emulator. Install those with
+  `scripts/install-sysimg.py` (verifies the SHA-1 and skips that dependency).
+- **Not included:** netsim (Bluetooth/UWB/Wi-Fi simulation daemon); the
+  emulator falls back to its built-in network stack, so networking works.
 - **Other SDK tools:** `scripts/fix-sdk-tools.sh` swaps the SDK's x86-64
   `platform-tools`/`build-tools` binaries for native Ubuntu ones (`adb`,
   `aapt2`, `zipalign`, ...) and sets Gradle's aapt2 override. `--restore`
@@ -106,7 +107,7 @@ with ccache kept between runs.
 - **Manual run** (Actions → *Build emulator* → *Run workflow*): builds and
   attaches the tarball to the run as an artifact.
 - **Release**: push a tag `v<emulator version>-<n>`, e.g.
-  `git tag v35.6.3-1 && git push origin v35.6.3-1`. The workflow builds,
+  `git tag v37.3.7-1 && git push origin v37.3.7-1`. The workflow builds,
   then creates a GitHub release with the .deb, the tarball, their SHA-256s
   and install notes.
 
@@ -122,8 +123,8 @@ The free arm64 runners are only available to public repos.
 | external/qemu | 0005 | `virt`: fall back to GICv3 under TCG on aarch64 (`gic-version=host` needs KVM) |
 | external/qemu | 0006 | arm64 guests on aarch64 Linux: `-cpu host` with KVM, `max` under TCG |
 | external/qemu | 0007 | Use system libuuid/libunwind (prebuilt static libs crash: local-exec TLS) |
-| hardware/google/gfxstream | 0001 | Missing `<cstdint>` (GCC 15) |
-| tools/netsim | 0001 | Missing `<cstdint>` (GCC 15) |
+| external/qemu | 0008 | GCC 15 / C23: empty-prototype mismatch, missing `<cstdint>` in netsim utils |
+| external/qemu | 0009 | Give the nested flatc build the system ninja (depot_tools' wrapper is x86-only) |
 
 Details and the reasoning behind each are in `notes/toolchain.md`. To change a
 patch, commit in `src/<project>` and run `scripts/save-patches.sh <project>`.
@@ -143,6 +144,7 @@ scripts/
   install-sdk.sh        install a local build or release tarball into the SDK
   ci-build.sh           all of the above from scratch (used by CI)
   pin-sources.sh        pin sources.list to the fetched revisions
+  gen-sources.py        generate sources.list from an AOSP emulator branch manifest
   save-patches.sh       export local commits in src/<project> to patches/
   fix-sdk-tools.sh      replace x86-64 SDK tools with native ones
   install-sysimg.py     install a system image without sdkmanager
@@ -152,9 +154,9 @@ notes/
 src/  out/              sources and build output (git-ignored)
 ```
 
-Sources are AOSP (`emu-master-dev` / `main` as of 2026-10, pinned in
-`sources.list`). `scripts/pin-sources.sh` explains how to move to newer
-upstream.
+Sources are AOSP `emu-main-dev` (pinned in `sources.list`, generated from
+the branch manifest by `scripts/gen-sources.py`). `scripts/pin-sources.sh`
+explains how to move to newer upstream.
 
 ## License
 
