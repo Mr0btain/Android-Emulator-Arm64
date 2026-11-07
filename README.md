@@ -125,6 +125,7 @@ The free arm64 runners are only available to public repos.
 | external/qemu | 0007 | Use system libuuid/libunwind (prebuilt static libs crash: local-exec TLS) |
 | external/qemu | 0008 | GCC 15 / C23: empty-prototype mismatch, missing `<cstdint>` in netsim utils |
 | external/qemu | 0009 | Give the nested flatc build the system ninja (depot_tools' wrapper is x86-only) |
+| external/qemu | 0010 | Accept `swiftshader_indirect` from AVD config.ini (IDE launches); fall back to swiftshader when ANGLE isn't bundled |
 
 Details and the reasoning behind each are in `notes/toolchain.md`. To change a
 patch, commit in `src/<project>` and run `scripts/save-patches.sh <project>`.

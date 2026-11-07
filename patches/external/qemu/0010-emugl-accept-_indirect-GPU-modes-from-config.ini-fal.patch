@@ -1,0 +1,61 @@
+From d88534231287f918517bc083c3ec1150c3c76d88 Mon Sep 17 00:00:00 2001
+From: Mr0btain <108532146+Mr0btain@users.noreply.github.com>
+Date: Sat, 7 Nov 2026 12:16:50 -0500
+Subject: [PATCH 10/10] emugl: accept *_indirect GPU modes from config.ini;
+ fall back when ANGLE is absent
+
+Android Studio/IntelliJ write hw.gpu.mode=swiftshader_indirect into the
+AVD config; only the -gpu flag had that alias translated, so IDE launches
+switched to 'auto', which picks swangle. Builds without the ANGLE GLES
+backend (native linux-aarch64) then exit with 'could not configure
+renderer'. Translate the alias for every source, and use swiftshader or
+llvmpipe when swangle is selected but ANGLE isn't shipped.
+---
+ .../aemu-gl-init/src/android/main-emugl.cpp        |  8 ++++++++
+ .../src/android/opengl/emugl_config.cpp            | 14 ++++++++++++++
+ 2 files changed, 22 insertions(+)
+
+diff --git a/android/android-ui/modules/aemu-gl-init/src/android/main-emugl.cpp b/android/android-ui/modules/aemu-gl-init/src/android/main-emugl.cpp
+index 81a2275e..ae50c21c 100644
+--- a/android/android-ui/modules/aemu-gl-init/src/android/main-emugl.cpp
++++ b/android/android-ui/modules/aemu-gl-init/src/android/main-emugl.cpp
+@@ -75,6 +75,14 @@ std::string gpuChoiceBasedOnGpuOptions(
+         gpuChoice = "auto";
+     }
+ 
++    // The *_indirect aliases are also what AVD config.ini files (hw.gpu.mode,
++    // written by Android Studio/IntelliJ) contain, not just -gpu.
++    if (gpuChoice == "swiftshader_indirect") {
++        gpuChoice = "swiftshader";
++    } else if (gpuChoice == "swangle_indirect") {
++        gpuChoice = "swangle";
++    }
++
+     const std::vector<std::string> allowedOptions = {
+             "auto", "host", "lavapipe", "swiftshader", "swangle", "software"};
+     bool validOption = false;
+diff --git a/android/android-ui/modules/aemu-gl-init/src/android/opengl/emugl_config.cpp b/android/android-ui/modules/aemu-gl-init/src/android/opengl/emugl_config.cpp
+index a7d37652..27dda44f 100644
+--- a/android/android-ui/modules/aemu-gl-init/src/android/opengl/emugl_config.cpp
++++ b/android/android-ui/modules/aemu-gl-init/src/android/opengl/emugl_config.cpp
+@@ -1167,6 +1167,20 @@ bool emuglConfig_init(EmuglConfig* config,
+ 
+     resetBackendList();
+ 
++    // Builds without ANGLE (e.g. native linux-aarch64) only ship swiftshader
++    // and/or llvmpipe GLES backends: use those instead of failing.
++    if (gles_mode_selected == "swangle" &&
++        !stringVectorContains(sBackendList->names(), "angle")) {
++        for (const char* alt : {"swiftshader", "llvmpipe"}) {
++            if (stringVectorContains(sBackendList->names(), alt)) {
++                dinfo("%s: no ANGLE backend, using '%s' for GLES", __func__,
++                      alt);
++                gles_mode_selected = alt;
++                break;
++            }
++        }
++    }
++
+     // 'host' is a special value corresponding to the default translation
+     // to desktop GL, anything else must be checked against existing host-side
+     // backends.
