@@ -62,12 +62,20 @@ Tips:
   holds EL2, so there's no KVM by default. An EL2 boot via slbounce (plus a
   patched kernel so battery, audio and suspend still work) lives in the
   separate https://github.com/Mr0btain/X13S-KVM-Kernel repo.
-- **Use the software GPU and cold boot.** In the AVD's `config.ini`:
-  `hw.gpu.enabled=yes`, `hw.gpu.mode=swiftshader_indirect`,
-  `fastboot.forceColdBoot=yes`, `fastboot.forceFastBoot=no`. With
-  `hw.gpu.mode=auto` IDE launches skip SwiftShader, and a broken Quick Boot
-  snapshot shows a black window. In the IDE's Device Manager, set
-  Graphics = Software and Boot = Cold.
+- **Graphics.** Two modes work (set in the IDE's Device Manager, or
+  `hw.gpu.mode` in the AVD's `config.ini`):
+  - **Hardware** (`host`), API 37+ images: Android renders GLES with ANGLE
+    on Vulkan, executed on the host by Mesa's llvmpipe (CPU). Usually
+    smoother than SwiftShader. Needs `libvulkan1` and `mesa-vulkan-drivers`
+    (the .deb depends on them). Older images fall back to software.
+  - **Software** (`swiftshader_indirect`): works with every image.
+
+  The real GPU (Turnip/Adreno) can't be used on the X13s: KVM refuses to
+  map the GPU driver's cached memory into the guest without the CPU's
+  stage-2 FWB feature. `ANDROID_EMU_VK_SELECT_GPU=turnip` forces it anyway,
+  for testing on other hardware.
+- **Cold boot.** Set `fastboot.forceColdBoot=yes`, `fastboot.forceFastBoot=no`
+  (IDE: Boot = Cold); a broken Quick Boot snapshot shows a black window.
 - **sdkmanager:** cmdline-tools 23+ replaced the Java `sdkmanager` with an
   x86-64 binary. Use `cmdline-tools/22.0/bin/sdkmanager`.
 - **System images** declaring a minimum emulator revision newer than this
@@ -126,6 +134,8 @@ The free arm64 runners are only available to public repos.
 | external/qemu | 0008 | GCC 15 / C23: empty-prototype mismatch, missing `<cstdint>` in netsim utils |
 | external/qemu | 0009 | Give the nested flatc build the system ninja (depot_tools' wrapper is x86-only) |
 | external/qemu | 0010 | Accept `swiftshader_indirect` from AVD config.ini (IDE launches); fall back to swiftshader when ANGLE isn't bundled |
+| external/qemu | 0011, 0012 | `hw.gpu.mode=host` on linux-aarch64 (API 37+): guest ANGLE on Vulkan via the system loader; older images fall back to software |
+| hardware/google/gfxstream | 0001 | Prefer the CPU Vulkan device (llvmpipe): KVM can't map the Adreno driver's cached memory on cores without stage-2 FWB |
 
 Details and the reasoning behind each are in `notes/toolchain.md`. To change a
 patch, commit in `src/<project>` and run `scripts/save-patches.sh <project>`.

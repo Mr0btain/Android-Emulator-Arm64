@@ -1,7 +1,7 @@
 From 32387844f8b5d0b35e4058059afa779b1cc86510 Mon Sep 17 00:00:00 2001
 From: Mr0btain <108532146+Mr0btain@users.noreply.github.com>
 Date: Fri, 6 Nov 2026 17:06:25 -0500
-Subject: [PATCH 08/10] Fix build with GCC 15 (C23 prototype, missing
+Subject: [PATCH 08/12] Fix build with GCC 15 (C23 prototype, missing
  <cstdint>)
 
 multitouch_update_touchpad() was declared with an empty parameter list,

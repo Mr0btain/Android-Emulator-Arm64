@@ -96,6 +96,9 @@ if command -v dpkg-shlibdeps >/dev/null; then
            -xlibc6-dbg "${elfs[@]}" 2>/dev/null | sed -n 's/^shlibs:Depends=//p') || deps=""
 fi
 [ -n "$deps" ] || deps="libc6 (>= 2.43), libstdc++6, libx11-6, libxcb1, libpulse0, libuuid1, libunwind8"
+# dlopen()ed at runtime, so dpkg-shlibdeps can't see them: the Vulkan loader
+# and Mesa's lavapipe (CPU Vulkan), used by hw.gpu.mode=host / -gpu host.
+deps="$deps, libvulkan1, mesa-vulkan-drivers"
 
 size=$(du -sk "$root" | cut -f1)
 cat > "$root/DEBIAN/control" <<EOF

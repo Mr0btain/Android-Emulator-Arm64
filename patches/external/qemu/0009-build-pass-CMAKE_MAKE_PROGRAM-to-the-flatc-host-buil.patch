@@ -1,7 +1,7 @@
 From 32acf4a80ce29a4e469b7a2d9162d5a5384c1401 Mon Sep 17 00:00:00 2001
 From: Mr0btain <108532146+Mr0btain@users.noreply.github.com>
 Date: Fri, 6 Nov 2026 17:00:40 -0500
-Subject: [PATCH 09/10] build: pass CMAKE_MAKE_PROGRAM to the flatc host build
+Subject: [PATCH 09/12] build: pass CMAKE_MAKE_PROGRAM to the flatc host build
 
 cmake.py prepends depot_tools to PATH, and its ninja wrapper exits with
 'Unknown architecture' on aarch64. The nested flatbuffers configure then

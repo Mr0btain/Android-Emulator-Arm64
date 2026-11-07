@@ -1,7 +1,7 @@
 From d88534231287f918517bc083c3ec1150c3c76d88 Mon Sep 17 00:00:00 2001
 From: Mr0btain <108532146+Mr0btain@users.noreply.github.com>
 Date: Sat, 7 Nov 2026 12:16:50 -0500
-Subject: [PATCH 10/10] emugl: accept *_indirect GPU modes from config.ini;
+Subject: [PATCH 10/12] emugl: accept *_indirect GPU modes from config.ini;
  fall back when ANGLE is absent
 
 Android Studio/IntelliJ write hw.gpu.mode=swiftshader_indirect into the

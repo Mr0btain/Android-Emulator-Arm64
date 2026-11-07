@@ -1,0 +1,33 @@
+From 4f7fe0d18f139ea633d88b93a7bbc420b931c9a5 Mon Sep 17 00:00:00 2001
+From: Mr0btain <108532146+Mr0btain@users.noreply.github.com>
+Date: Sat, 7 Nov 2026 12:34:20 -0500
+Subject: [PATCH 11/12] emugl: 'host' GPU mode on linux-aarch64 uses guest
+ ANGLE on Vulkan
+
+There is no ANGLE host shader translator for linux-aarch64, so host GLES
+translation crashes (LazyLoadedSTDispatch). Enable GuestAngle and Vulkan
+for -gpu host / hw.gpu.mode=host so the guest renders GLES via ANGLE on
+gfxstream Vulkan.
+---
+ .../modules/aemu-gl-init/src/android/main-emugl.cpp       | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/android/android-ui/modules/aemu-gl-init/src/android/main-emugl.cpp b/android/android-ui/modules/aemu-gl-init/src/android/main-emugl.cpp
+index ae50c21c..cb654641 100644
+--- a/android/android-ui/modules/aemu-gl-init/src/android/main-emugl.cpp
++++ b/android/android-ui/modules/aemu-gl-init/src/android/main-emugl.cpp
+@@ -118,6 +118,14 @@ void convertGpuOptionsToFeatureFlags(
+             fc::isEnabled(fc::ForceLavapipeForSoftwareRendering);
+     if (gpuChoice == "host") {
+         feature_set_if_not_overridden(kFeature_ForceGpuHost, true);
++#if defined(__linux__) && defined(__aarch64__)
++        // Native linux-aarch64 builds don't ship ANGLE's host shader
++        // translator, so host GLES translation can't work. Render GLES with
++        // ANGLE inside the guest on top of gfxstream Vulkan instead.
++        feature_set_if_not_overridden_or_guest_disabled(kFeature_GuestAngle,
++                                                        true);
++        feature_set_if_not_overridden(kFeature_Vulkan, true);
++#endif
+     } else if (gpuChoice == "software") {
+         // "software" is a special term to select best software mode for the
+         // platform/avd and not a real gpu backend mode.

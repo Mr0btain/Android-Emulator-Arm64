@@ -1,7 +1,7 @@
 From 709bd14f2d6a724d9da500ce16c963759cce46e9 Mon Sep 17 00:00:00 2001
 From: nick <wnbarbe1@gmail.com>
 Date: Wed, 28 Oct 2026 21:07:20 -0400
-Subject: [PATCH 04/10] Fix build with GCC 15
+Subject: [PATCH 04/12] Fix build with GCC 15
 
 - Include <cstdint>/<stdint.h> where fixed-width ints are used; libstdc++
   15 no longer pulls them in transitively.
